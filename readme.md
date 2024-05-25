@@ -10,7 +10,7 @@ BotMaster is open-source software that enables the creation of modular bots easi
   - **Global**: Commands are registered globally, which may take up to 1 hour but makes them functional across all servers.
   - **Local**: Commands are registered server by server, suitable for a few servers but not recommended for more than 200 servers.
 - **Resource Efficiency**: Designed to avoid excessive resource consumption, ensuring optimal and efficient performance.
-- **Plugin Example**: An example of the plugin system usage [click here](https://github.com/iFran2019/BotMasterDC-TestPlugin).
+- **Plugin Example**: An example of the plugin system usage [click here](https://github.com/iFran2019/BotMaster-TestPlugin).
 
 ## TODO List
 
