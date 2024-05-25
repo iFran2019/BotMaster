@@ -1,0 +1,10 @@
+token: ""
+mongodb:
+  enabled: false
+  uri: ""
+commands:
+  slash:
+    enabled: true
+    register: "Local" #Global or Local (Everything other than those 2 terms will be seen as Local)
+  disabled: #Excluded Registered Commands
+    - ""

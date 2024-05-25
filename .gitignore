@@ -1,0 +1,3 @@
+# Project exclude paths
+Source/target/
+TestPlugin/target/
