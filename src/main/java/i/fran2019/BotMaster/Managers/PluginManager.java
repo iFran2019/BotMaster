@@ -19,10 +19,11 @@ import java.util.zip.ZipEntry;
 
 public class PluginManager {
     @Getter private List<Plugin> plugins;
+    @Getter private File pluginFolder;
     private static final String PLUGIN_FOLDER_PATH = "plugins";
 
     public PluginManager() {
-        File pluginFolder = new File(PLUGIN_FOLDER_PATH);
+        pluginFolder = new File(PLUGIN_FOLDER_PATH);
         if (!pluginFolder.exists()) {
             if (pluginFolder.mkdir()) {
                 BotMaster.getLogger().info("The 'plugins' folder has been created.");
@@ -62,14 +63,11 @@ public class PluginManager {
                 InputStream inputStream = jarFile.getInputStream(entry);
                 Yaml yaml = new Yaml();
                 Map<String, String> config = yaml.load(inputStream);
-                String mainClassName = config.get("main");
-                String pluginName = config.get("name");
-                String pluginDescription = config.get("description");
                 try (PluginClassLoader pluginClassLoader = new PluginClassLoader(pluginFile.toURI().toURL())) {
-                    Class<?> pluginClass = pluginClassLoader.loadClass(mainClassName);
+                    Class<?> pluginClass = pluginClassLoader.loadClass(config.get("main"));
                     if (Plugin.class.isAssignableFrom(pluginClass)) {
                         Constructor<?> constructor = pluginClass.getDeclaredConstructor(BotMaster.class, String.class, String.class);
-                        Plugin pluginInstance = (Plugin) constructor.newInstance(BotMaster.getBotMaster(), pluginName, pluginDescription);
+                        Plugin pluginInstance = (Plugin) constructor.newInstance(BotMaster.getBotMaster(), config.get("name"), config.get("description"), config.get("version"));
                         pluginInstance.onEnable();
                         plugins.add(pluginInstance);
                     } else {

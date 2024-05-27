@@ -1,13 +1,10 @@
 package i.fran2019.BotMaster.Managers;
 
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +41,8 @@ public class ConfigManager {
         try {
             File configFile = new File("config.yml");
             if (!configFile.exists()) {
-                logger.error("Config file not found");
-                return;
+                createDefaultConfigFile(configFile);
+                loadConfigMap();
             }
             Yaml yaml = new Yaml();
             try (FileInputStream fis = new FileInputStream(configFile)) {
@@ -74,5 +71,24 @@ public class ConfigManager {
             currentMap = (Map<String, Object>) value;
         }
         return currentMap.get(keys[keys.length - 1]);
+    }
+
+    private void createDefaultConfigFile(File configFile) {
+        InputStream defaultConfigStream = getClass().getClassLoader().getResourceAsStream("config.yml");
+        if (defaultConfigStream == null) {
+            logger.error("Default config file not found in resources");
+            return;
+        }
+
+        try (OutputStream outputStream = new FileOutputStream(configFile)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = defaultConfigStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, length);
+            }
+            logger.info("Default config file created");
+        } catch (IOException e) {
+            logger.error("Error creating default config file", e);
+        }
     }
 }
