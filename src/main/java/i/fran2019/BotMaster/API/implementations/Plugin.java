@@ -15,13 +15,13 @@ public class Plugin {
     @Getter String version;
 
     public Plugin(BotMaster botMaster, String name, String description, String version) {
-        this.configManager = new ConfigManager(this);
-        this.logger = LoggerFactory.getLogger(this.getClass());
-
         this.botMaster = botMaster;
         this.name = name;
         this.description = description;
         this.version = version;
+
+        this.configManager = new ConfigManager(this);
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     public void onEnable() {

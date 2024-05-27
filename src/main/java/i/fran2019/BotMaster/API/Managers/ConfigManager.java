@@ -30,7 +30,7 @@ public class ConfigManager {
     }
 
     private void createDirectory() {
-        configDir = new File(BotMaster.getBotMaster().getPluginManager().getPluginFolder(), plugin.getName());
+        configDir = new File(new File("plugins"), plugin.getName());
 
         if (!configDir.exists()) {
             try {

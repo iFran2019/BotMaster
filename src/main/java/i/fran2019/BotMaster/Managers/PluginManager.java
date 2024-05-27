@@ -19,11 +19,9 @@ import java.util.zip.ZipEntry;
 
 public class PluginManager {
     @Getter private List<Plugin> plugins;
-    @Getter private File pluginFolder;
-    private static final String PLUGIN_FOLDER_PATH = "plugins";
 
     public PluginManager() {
-        pluginFolder = new File(PLUGIN_FOLDER_PATH);
+        File pluginFolder = new File("plugins");
         if (!pluginFolder.exists()) {
             if (pluginFolder.mkdir()) {
                 BotMaster.getLogger().info("The 'plugins' folder has been created.");
@@ -79,6 +77,7 @@ public class PluginManager {
             }
         } catch (IOException | NullPointerException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             BotMaster.getLogger().warn("Error loading plugin file '{}': {} {}", pluginFile.getName(), e.getClass(), e.getMessage());
+            e.printStackTrace();
         }
     }
 }
