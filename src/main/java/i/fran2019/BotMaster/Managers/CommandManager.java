@@ -41,7 +41,6 @@ public class CommandManager extends ListenerAdapter {
 
     protected void registerSlashCommands() {
         if (!this.started) this.started = true;
-
         if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_REGISTER.equalsIgnoreCase("global")) {
             BotMaster.getLogger().info("Loading commands. (Global) (takes 1 hour to update)");
             BotMaster.getBotMaster().getJda().retrieveCommands().queue(existingCommands -> {
@@ -56,6 +55,7 @@ public class CommandManager extends ListenerAdapter {
             });
         } else {
             BotMaster.getLogger().info("Loading commands on {} guilds. (Local)", BotMaster.getBotMaster().getJda().getGuilds().size());
+            if (BotMaster.getBotMaster().getJda().getGuilds().size() >= 50) BotMaster.getLogger().warn("You could consider starting to use \"Global\" commands to avoid a high performance load when starting the bot.");
             for (Guild guild : BotMaster.getBotMaster().getJda().getGuilds()) {
                 guild.retrieveCommands().queue(existingCommands -> {
                     existingCommands.forEach(existingCommand -> {

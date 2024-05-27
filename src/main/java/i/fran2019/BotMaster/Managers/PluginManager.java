@@ -46,7 +46,9 @@ public class PluginManager {
             loadPlugin(pluginFile);
         }
 
-        BotMaster.getBotMaster().getCommandManager().registerSlashCommands();
+        Thread thread = new Thread(() -> BotMaster.getBotMaster().getCommandManager().registerSlashCommands());
+        thread.setName("CommandLoader");
+        thread.start();
     }
 
     public void disableAllPlugins() {
