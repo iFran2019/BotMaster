@@ -15,9 +15,10 @@ public class Plugin {
     @Getter String version;
 
     public Plugin(BotMaster botMaster, String name, String description, String version) {
-        this.botMaster = botMaster;
         this.configManager = new ConfigManager(this);
         this.logger = LoggerFactory.getLogger(this.getClass());
+
+        this.botMaster = botMaster;
         this.name = name;
         this.description = description;
         this.version = version;

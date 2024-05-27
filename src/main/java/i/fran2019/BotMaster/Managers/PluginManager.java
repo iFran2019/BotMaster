@@ -66,7 +66,7 @@ public class PluginManager {
                 try (PluginClassLoader pluginClassLoader = new PluginClassLoader(pluginFile.toURI().toURL())) {
                     Class<?> pluginClass = pluginClassLoader.loadClass(config.get("main"));
                     if (Plugin.class.isAssignableFrom(pluginClass)) {
-                        Constructor<?> constructor = pluginClass.getDeclaredConstructor(BotMaster.class, String.class, String.class);
+                        Constructor<?> constructor = pluginClass.getDeclaredConstructor(BotMaster.class, String.class, String.class, String.class);
                         Plugin pluginInstance = (Plugin) constructor.newInstance(BotMaster.getBotMaster(), config.get("name"), config.get("description"), config.get("version"));
                         pluginInstance.onEnable();
                         plugins.add(pluginInstance);
@@ -78,7 +78,7 @@ public class PluginManager {
                 BotMaster.getLogger().warn("Plugin file '{}' does not contain a bot.yml file.", pluginFile.getName());
             }
         } catch (IOException | NullPointerException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            BotMaster.getLogger().warn("Error loading plugin file '{}': {}", pluginFile.getName(), e.getMessage());
+            BotMaster.getLogger().warn("Error loading plugin file '{}': {} {}", pluginFile.getName(), e.getClass(), e.getMessage());
         }
     }
 }
