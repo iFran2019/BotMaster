@@ -6,17 +6,12 @@ BotMaster is open-source software that enables the creation of modular bots easi
 
 - **Modularity**: Allows easy addition and removal of modules (plugins).
 - **Automatic Registration of Slash Commands**: Automates the registration of slash commands in Discord servers.
-- **Modes of Slash Commands**:
-  - **Global**: Commands are registered globally, which may take up to 1 hour but makes them functional across all servers.
-  - **Local**: Commands are registered server by server, suitable for a few servers but not recommended for more than 200 servers.
 - **Resource Efficiency**: Designed to avoid excessive resource consumption, ensuring optimal and efficient performance.
-- **Plugin Example**: An example of the plugin system usage [click here](https://github.com/iFran2019/BotMaster-TestPlugin).
+- **Wiki**: A wiki as complete as possible [click here](https://github.com/iFran2019/BotMaster/wiki).
 
 ## TODO List
 
-- [ ] Improve documentation for plugin creation.
 - [ ] Add button component handler.
-- [ ] Add plugin examples to facilitate understanding.
 - [ ] Add redis support.
 - [ ] Add mysql support.
 
