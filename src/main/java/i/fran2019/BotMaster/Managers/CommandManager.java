@@ -119,23 +119,18 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        event.getGuild().updateCommands().addCommands(this.commandsData).queue();;
+        event.getGuild().updateCommands().addCommands(this.commandsData).queue();
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
-        BotMaster.getLogger().info("Command Execution: {}", e.toString());
-
         String commandName = e.getName();
 
         if (e.getSubcommandGroup() != null) commandName = commandName+" "+e.getSubcommandGroup()+" "+e.getSubcommandName();
         else if (e.getSubcommandName() != null) commandName = commandName+" "+e.getSubcommandName();
 
-        BotMaster.getLogger().info("Command Name: {}", commandName);
-
         Command command = this.commands.get(commandName);
         if (command != null) {
-            BotMaster.getLogger().debug("Command Name: {}", commandName);
             for (Field field : command.getClass().getDeclaredFields()) {
                 if (field.isAnnotationPresent(CommandOption.class)) {
                     CommandOption option = field.getAnnotation(CommandOption.class);
