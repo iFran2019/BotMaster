@@ -7,10 +7,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.lang.reflect.Field;
@@ -30,8 +31,8 @@ public class CommandManager extends ListenerAdapter {
     }
 
     public void registerCommand(Command cmd) {
-        if (this.commands.get(cmd.getName()) == null) {
-            this.commands.put(cmd.getName(), cmd);
+        if (this.commands.get(cmd.getName().toLowerCase()) == null) {
+            this.commands.put(cmd.getName().toLowerCase(), cmd);
             addCommandData(cmd);
         }
         else BotMaster.getLogger().warn("The command cannot be registered correctly because it already exists.");
@@ -72,7 +73,22 @@ public class CommandManager extends ListenerAdapter {
     }
 
     private void addCommandData(Command cmd) {
-        CommandDataImpl commandData = new CommandDataImpl(cmd.getName(), "Command description");
+        String[] cmdSplit = cmd.getName().toLowerCase().split(" ");
+        CommandDataImpl commandData = new CommandDataImpl(cmdSplit[0], cmdSplit[0]);
+        SubcommandGroupData subcommandGroupData = null;
+        SubcommandData subcommandData = null;
+
+        if (cmdSplit.length == 3) {
+            subcommandGroupData = new SubcommandGroupData(cmdSplit[1], cmdSplit[1]);
+            subcommandData = new SubcommandData(cmdSplit[1], cmdSplit[1]);
+        } else if (cmdSplit.length == 2) subcommandData = new SubcommandData(cmdSplit[1], cmdSplit[1]);
+        else {
+            if (cmdSplit.length != 1) {
+                BotMaster.getLogger().info("Error on saving command Data");
+                return;
+            }
+        }
+
         for (Field field : cmd.getClass().getDeclaredFields()) {
             if (field.isAnnotationPresent(CommandOption.class)) {
                 CommandOption option = field.getAnnotation(CommandOption.class);
@@ -81,13 +97,25 @@ public class CommandManager extends ListenerAdapter {
                     if (choice.contains("|")) {
                         String[] choices = choice.split("\\|");
                         optionData.addChoice(choices[0], choices[1]);
-                    } else optionData.addChoice(choice, choice);
+                    } else {
+                        optionData.addChoice(choice, choice);
+                    }
                 }
-                commandData.addOptions(optionData);
+
+                if (cmdSplit.length == 3) subcommandData.addOptions(optionData);
+                else if (cmdSplit.length == 2) subcommandData.addOptions(optionData);
+                else commandData.addOptions(optionData);
             }
         }
+
+        if (cmdSplit.length == 3) {
+            subcommandGroupData.addSubcommands(subcommandData);
+            commandData.addSubcommandGroups(subcommandGroupData);
+        } else if (cmdSplit.length == 2) commandData.addSubcommands(subcommandData);
+
         this.commandsData.add(commandData);
     }
+
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
@@ -96,7 +124,15 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
+        BotMaster.getLogger().info("Command Execution: {}", e.toString());
+
         String commandName = e.getName();
+
+        if (e.getSubcommandGroup() != null) commandName = commandName+" "+e.getSubcommandGroup()+" "+e.getSubcommandName();
+        else if (e.getSubcommandName() != null) commandName = commandName+" "+e.getSubcommandName();
+
+        BotMaster.getLogger().info("Command Name: {}", commandName);
+
         Command command = this.commands.get(commandName);
         if (command != null) {
             BotMaster.getLogger().debug("Command Name: {}", commandName);
