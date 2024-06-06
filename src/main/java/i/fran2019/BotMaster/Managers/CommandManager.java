@@ -34,13 +34,17 @@ public class CommandManager extends ListenerAdapter {
 
     @SuppressWarnings("unused")
     public void registerCommand(Command cmd) {
+        if (started) {
+            BotMaster.getLogger().error("Can't register a new command.");
+            return;
+        }
+
         if (this.commands.get(cmd.getName().toLowerCase()) == null) {
             this.commands.put(cmd.getName().toLowerCase(), cmd);
             addCommandData(cmd);
         }
         else BotMaster.getLogger().warn("The command cannot be registered correctly because it already exists.");
 
-        if (started) registerSlashCommands();
     }
 
     protected void registerSlashCommands() {
@@ -50,30 +54,35 @@ public class CommandManager extends ListenerAdapter {
             BotMaster.getLogger().info("Loading commands. (Global) (takes 1 hour to update)");
 
             BotMaster.getBotMaster().getJda().retrieveCommands().queue(existingCommands -> {
-                List<Long> commandsToDelete = existingCommands.stream()
-                        .filter(existingCommand -> commandsData.stream().anyMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
-                        .map(ISnowflake::getIdLong)
-                        .toList();
+                if (existingCommands != null && commandsData != null) {
+                    List<Long> commandsToDelete = existingCommands.stream()
+                            .filter(existingCommand -> commandsData.stream().noneMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
+                            .map(ISnowflake::getIdLong)
+                            .toList();
 
-                if (!commandsToDelete.isEmpty()) {
-                    CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
-                            commandsToDelete.stream()
-                                    .map(commandId -> CompletableFuture.runAsync(() ->
-                                            BotMaster.getBotMaster().getJda().deleteCommandById(commandId).queue()))
-                                    .toArray(CompletableFuture[]::new)
-                    );
+                    if (!commandsToDelete.isEmpty()) {
+                        CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
+                                commandsToDelete.stream()
+                                        .map(commandId -> CompletableFuture.runAsync(() ->
+                                                BotMaster.getBotMaster().getJda().deleteCommandById(commandId).queue(
+                                                        success -> {},
+                                                        throwable -> {}
+                                                )))
+                                        .toArray(CompletableFuture[]::new)
+                        );
 
-                    deletionFuture.thenRun(() ->
-                            BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
-                                    success -> BotMaster.getLogger().info("Global commands registered successfully."),
-                                    failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
-                            )
-                    );
-                } else {
-                    BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
-                            success -> BotMaster.getLogger().info("Global commands registered successfully."),
-                            failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
-                    );
+                        deletionFuture.thenRun(() ->
+                                BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
+                                        success -> BotMaster.getLogger().info("Global commands registered successfully."),
+                                        failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
+                                )
+                        );
+                    } else {
+                        BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
+                                success -> BotMaster.getLogger().info("Global commands registered successfully."),
+                                failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
+                        );
+                    }
                 }
             });
 
@@ -86,30 +95,35 @@ public class CommandManager extends ListenerAdapter {
 
             for (Guild guild : BotMaster.getBotMaster().getJda().getGuilds()) {
                 guild.retrieveCommands().queue(existingCommands -> {
-                    List<Long> commandsToDelete = existingCommands.stream()
-                            .filter(existingCommand -> commandsData.stream().anyMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
-                            .map(ISnowflake::getIdLong)
-                            .toList();
+                    if (existingCommands != null && commandsData != null) {
+                        List<Long> commandsToDelete = existingCommands.stream()
+                                .filter(existingCommand -> commandsData.stream().noneMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
+                                .map(ISnowflake::getIdLong)
+                                .toList();
 
-                    if (!commandsToDelete.isEmpty()) {
-                        CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
-                                commandsToDelete.stream()
-                                        .map(commandId -> CompletableFuture.runAsync(() ->
-                                                guild.deleteCommandById(commandId).queue()))
-                                        .toArray(CompletableFuture[]::new)
-                        );
+                        if (!commandsToDelete.isEmpty()) {
+                            CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
+                                    commandsToDelete.stream()
+                                            .map(commandId -> CompletableFuture.runAsync(() ->
+                                                    guild.deleteCommandById(commandId).queue(
+                                                            success -> {},
+                                                            throwable -> {}
+                                                    )))
+                                            .toArray(CompletableFuture[]::new)
+                            );
 
-                        deletionFuture.thenRun(() ->
-                                guild.updateCommands().addCommands(this.commandsData).queue(
-                                        success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
-                                        failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
-                                )
-                        );
-                    } else {
-                        guild.updateCommands().addCommands(this.commandsData).queue(
-                                success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
-                                failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
-                        );
+                            deletionFuture.thenRun(() ->
+                                    guild.updateCommands().addCommands(this.commandsData).queue(
+                                            success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
+                                            failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
+                                    )
+                            );
+                        } else {
+                            guild.updateCommands().addCommands(this.commandsData).queue(
+                                    success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
+                                    failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
+                            );
+                        }
                     }
                 });
             }
