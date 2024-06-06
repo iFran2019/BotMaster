@@ -4,6 +4,7 @@ import i.fran2019.BotMaster.API.annotations.CommandOption;
 import i.fran2019.BotMaster.API.implementations.Command;
 import i.fran2019.BotMaster.BotMaster;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandManager extends ListenerAdapter {
     private boolean started = false;
@@ -30,6 +32,7 @@ public class CommandManager extends ListenerAdapter {
         this.commandsData = new ArrayList<>();
     }
 
+    @SuppressWarnings("unused")
     public void registerCommand(Command cmd) {
         if (this.commands.get(cmd.getName().toLowerCase()) == null) {
             this.commands.put(cmd.getName().toLowerCase(), cmd);
@@ -42,31 +45,72 @@ public class CommandManager extends ListenerAdapter {
 
     protected void registerSlashCommands() {
         if (!this.started) this.started = true;
+
         if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_REGISTER.equalsIgnoreCase("global")) {
             BotMaster.getLogger().info("Loading commands. (Global) (takes 1 hour to update)");
+
             BotMaster.getBotMaster().getJda().retrieveCommands().queue(existingCommands -> {
-                existingCommands.forEach(existingCommand -> {
-                    for (CommandData commandData : commandsData) {
-                        if (commandData.getName().equals(existingCommand.getName())) {
-                            BotMaster.getBotMaster().getJda().deleteCommandById(existingCommand.getIdLong()).queue();
-                        }
-                    }
-                });
-                BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue();
+                List<Long> commandsToDelete = existingCommands.stream()
+                        .filter(existingCommand -> commandsData.stream().anyMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
+                        .map(ISnowflake::getIdLong)
+                        .toList();
+
+                if (!commandsToDelete.isEmpty()) {
+                    CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
+                            commandsToDelete.stream()
+                                    .map(commandId -> CompletableFuture.runAsync(() ->
+                                            BotMaster.getBotMaster().getJda().deleteCommandById(commandId).queue()))
+                                    .toArray(CompletableFuture[]::new)
+                    );
+
+                    deletionFuture.thenRun(() ->
+                            BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
+                                    success -> BotMaster.getLogger().info("Global commands registered successfully."),
+                                    failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
+                            )
+                    );
+                } else {
+                    BotMaster.getBotMaster().getJda().updateCommands().addCommands(this.commandsData).queue(
+                            success -> BotMaster.getLogger().info("Global commands registered successfully."),
+                            failure -> BotMaster.getLogger().error("Failed to register global commands.", failure)
+                    );
+                }
             });
+
         } else {
             BotMaster.getLogger().info("Loading commands on {} guilds. (Local)", BotMaster.getBotMaster().getJda().getGuilds().size());
-            if (BotMaster.getBotMaster().getJda().getGuilds().size() >= 50) BotMaster.getLogger().warn("You could consider starting to use \"Global\" commands to avoid a high performance load when starting the bot.");
+
+            if (BotMaster.getBotMaster().getJda().getGuilds().size() >= 50) {
+                BotMaster.getLogger().warn("You could consider starting to use \"Global\" commands to avoid a high performance load when starting the bot.");
+            }
+
             for (Guild guild : BotMaster.getBotMaster().getJda().getGuilds()) {
                 guild.retrieveCommands().queue(existingCommands -> {
-                    existingCommands.forEach(existingCommand -> {
-                        for (CommandData commandData : commandsData) {
-                            if (commandData.getName().equals(existingCommand.getName())) {
-                                guild.deleteCommandById(existingCommand.getIdLong()).queue();
-                            }
-                        }
-                    });
-                    guild.updateCommands().addCommands(this.commandsData).queue();
+                    List<Long> commandsToDelete = existingCommands.stream()
+                            .filter(existingCommand -> commandsData.stream().anyMatch(commandData -> commandData.getName().equals(existingCommand.getName())))
+                            .map(ISnowflake::getIdLong)
+                            .toList();
+
+                    if (!commandsToDelete.isEmpty()) {
+                        CompletableFuture<Void> deletionFuture = CompletableFuture.allOf(
+                                commandsToDelete.stream()
+                                        .map(commandId -> CompletableFuture.runAsync(() ->
+                                                guild.deleteCommandById(commandId).queue()))
+                                        .toArray(CompletableFuture[]::new)
+                        );
+
+                        deletionFuture.thenRun(() ->
+                                guild.updateCommands().addCommands(this.commandsData).queue(
+                                        success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
+                                        failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
+                                )
+                        );
+                    } else {
+                        guild.updateCommands().addCommands(this.commandsData).queue(
+                                success -> BotMaster.getLogger().info("Commands registered successfully on guild: {}", guild.getName()),
+                                failure -> BotMaster.getLogger().error("Failed to register commands on guild: {}", guild.getName(), failure)
+                        );
+                    }
                 });
             }
         }
