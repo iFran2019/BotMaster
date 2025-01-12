@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.UnifiedJedis;
 
 public class BotMaster {
     @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
@@ -18,6 +19,7 @@ public class BotMaster {
     @Getter private CommandManager commandManager;
     @Getter private PluginManager pluginManager;
     @Getter private MongoClient mongoClient;
+    @Getter private UnifiedJedis redisClient;
     @Getter private ConfigManager configManager;
     @Getter private JDA jda;
 
@@ -32,6 +34,7 @@ public class BotMaster {
         logger.info("Starting Bot");
         this.configManager = new ConfigManager();
         this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(this.configManager.MONGODB_URI) : null;
+        this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
         botMaster.build();
 
         this.commandManager = new CommandManager();

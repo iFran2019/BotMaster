@@ -2,6 +2,9 @@ token: ""
 mongodb:
   enabled: false
   uri: ""
+redis:
+  enabled: false
+  uri: ""
 commands:
   slash:
     enabled: true

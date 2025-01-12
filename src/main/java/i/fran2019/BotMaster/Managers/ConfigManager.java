@@ -15,6 +15,8 @@ public class ConfigManager {
     public String TOKEN;
     public Boolean MONGODB_ENABLED;
     public String MONGODB_URI;
+    public Boolean REDIS_ENABLED;
+    public String REDIS_URI;
     public Boolean COMMANDS_SLASH_ENABLED;
     public String COMMANDS_SLASH_REGISTER;
     public List<String> COMMANDS_DISABLED;
@@ -32,6 +34,8 @@ public class ConfigManager {
         TOKEN = (String) getConfigValue("token");
         MONGODB_ENABLED = (Boolean) getConfigValue("mongodb.enabled");
         MONGODB_URI = (String) getConfigValue("mongodb.uri");
+        REDIS_ENABLED = (Boolean) getConfigValue("redis.enabled");
+        REDIS_URI = (String) getConfigValue("redis.uri");
         COMMANDS_SLASH_ENABLED = (Boolean) getConfigValue("commands.slash.enabled");
         COMMANDS_SLASH_REGISTER = (String) getConfigValue("commands.slash.register");
         COMMANDS_DISABLED = (List<String>) getConfigValue("commands.disabled");

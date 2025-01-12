@@ -12,7 +12,7 @@ BotMaster is open-source software that enables the creation of modular bots easi
 ## TODO List
 
 - [ ] Add button component handler.
-- [ ] Add redis support.
+- [X] Add redis support.
 - [ ] Add mysql support.
 
 ## Usage
