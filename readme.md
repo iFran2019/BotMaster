@@ -2,6 +2,8 @@
 
 BotMaster is open-source software that enables the creation of modular bots easily and efficiently. Additionally, it is designed to avoid excessive resource consumption, ensuring optimal performance.
 
+Available on BuiltByBit [click here](https://builtbybit.com/resources/botmaster.58368).
+
 ## Features
 
 - **Modularity**: Allows easy addition and removal of modules (plugins).
