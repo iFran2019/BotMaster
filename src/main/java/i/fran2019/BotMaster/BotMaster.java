@@ -9,6 +9,8 @@ import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.UnifiedJedis;
@@ -62,7 +64,11 @@ public class BotMaster {
     private void build() {
         logger.info("Building Bot");
         try {
-            this.jda = JDABuilder.createLight(configManager.TOKEN).build().awaitReady();
+            this.jda = JDABuilder.createDefault(configManager.TOKEN)
+                    .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
+                    .enableCache(CacheFlag.getPrivileged())
+                    .setAutoReconnect(true)
+                    .build().awaitReady();
         } catch (InvalidTokenException e) {
             logger.error("Invalid Token.", e);
         } catch (InterruptedException e) {
