@@ -38,21 +38,23 @@ public class BotMaster {
         this.configManager = new ConfigManager();
         this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(this.configManager.MONGODB_URI) : null;
         this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
+
+        botMaster.build();
+
         this.commandManager = new CommandManager();
         this.pluginManager = new PluginManager();
+
     }
 
     public void stop() {
         logger.info("Stopping Bot");
         if (this.pluginManager != null) this.pluginManager.disableAllPlugins();
-        if (this.jda != null) {
-            this.jda.shutdownNow();
-            try {
-                this.jda.awaitShutdown();
-            } catch (InterruptedException e) {
-                logger.error("Interrupted while shutting down JDA.", e);
-                Thread.currentThread().interrupt();
-            }
+        this.getJda().shutdownNow();
+        try {
+            this.getJda().awaitShutdown();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted while shutting down JDA.", e);
+            Thread.currentThread().interrupt();
         }
         if (this.mongoClient != null) {
             this.mongoClient.close();
