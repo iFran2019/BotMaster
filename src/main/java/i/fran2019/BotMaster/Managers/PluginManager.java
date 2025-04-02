@@ -63,6 +63,7 @@ public class PluginManager {
                 Map<String, String> config = yaml.load(inputStream);
                 try (PluginClassLoader pluginClassLoader = new PluginClassLoader(pluginFile.toURI().toURL())) {
                     Class<?> pluginClass = pluginClassLoader.loadClass(config.get("main"));
+                    pluginClassLoader.preloadClasses(jarFile, pluginClassLoader);
                     if (Plugin.class.isAssignableFrom(pluginClass)) {
                         Constructor<?> constructor = pluginClass.getDeclaredConstructor(BotMaster.class, String.class, String.class, String.class);
                         Plugin pluginInstance = (Plugin) constructor.newInstance(BotMaster.getBotMaster(), config.get("name"), config.get("description"), config.get("version"));
