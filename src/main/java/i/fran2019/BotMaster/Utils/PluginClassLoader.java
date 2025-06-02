@@ -9,7 +9,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class PluginClassLoader extends URLClassLoader {
-
     public PluginClassLoader(URL url) {
         super(new URL[]{url}, BotMaster.class.getClassLoader());
     }
@@ -22,7 +21,9 @@ public class PluginClassLoader extends URLClassLoader {
                 try {
                     loadedClass = getParent().loadClass(name);
                 } catch (ClassNotFoundException e) {
-                    loadedClass = findClass(name);
+                    try {
+                        loadedClass = findClass(name);
+                    } catch (IllegalAccessError ignore) {}
                 }
             }
             return loadedClass;

@@ -50,6 +50,8 @@ public class CommandManager extends ListenerAdapter {
     protected void registerSlashCommands() {
         if (!this.started) this.started = true;
 
+        if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_ENABLED) return;
+
         if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_REGISTER.equalsIgnoreCase("global")) {
             BotMaster.getLogger().info("Loading commands. (Global) (takes 1 hour to update)");
 
@@ -176,8 +178,12 @@ public class CommandManager extends ListenerAdapter {
 
 
     @Override
-    public void onGuildJoin(GuildJoinEvent event) {
-        event.getGuild().updateCommands().addCommands(this.commandsData).queue();
+    public void onGuildJoin(GuildJoinEvent e) {
+        if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_ENABLED) {
+            if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_REGISTER.equalsIgnoreCase("Local")) {
+                e.getGuild().updateCommands().addCommands(this.commandsData).queue();
+            }
+        }
     }
 
     @Override

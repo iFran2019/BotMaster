@@ -5,6 +5,8 @@ mongodb:
 redis:
   enabled: false
   uri: ""
+lavalink:
+  enabled: false
 commands:
   slash:
     enabled: true

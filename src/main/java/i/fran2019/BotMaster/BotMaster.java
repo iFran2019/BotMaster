@@ -2,6 +2,9 @@ package i.fran2019.BotMaster;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import dev.arbjerg.lavalink.client.Helpers;
+import dev.arbjerg.lavalink.client.LavalinkClient;
+import dev.arbjerg.lavalink.libraries.jda.JDAVoiceUpdateListener;
 import i.fran2019.BotMaster.Managers.CommandManager;
 import i.fran2019.BotMaster.Managers.ConfigManager;
 import i.fran2019.BotMaster.Managers.PluginManager;
@@ -19,11 +22,15 @@ import redis.clients.jedis.UnifiedJedis;
 public class BotMaster {
     @NonNull @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
     @NonNull @Getter private static BotMaster botMaster;
+
     @Getter private CommandManager commandManager;
     @Getter private PluginManager pluginManager;
+    @Getter private ConfigManager configManager;
+
     @Getter private MongoClient mongoClient;
     @Getter private UnifiedJedis redisClient;
-    @Getter private ConfigManager configManager;
+    @Getter private LavalinkClient lavalinkClient;
+
     @NonNull @Getter private JDA jda;
 
     public static void main(String[] args) {
@@ -36,14 +43,15 @@ public class BotMaster {
 
         logger.info("Starting Bot");
         this.configManager = new ConfigManager();
+
         this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(this.configManager.MONGODB_URI) : null;
         this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
+        this.lavalinkClient = this.configManager.LAVALINK_ENABLED ? new LavalinkClient(Helpers.getUserIdFromToken(configManager.TOKEN)) : null;
 
         botMaster.build();
 
         this.commandManager = new CommandManager();
         this.pluginManager = new PluginManager();
-
     }
 
     public void stop() {
@@ -65,11 +73,14 @@ public class BotMaster {
     private void build() {
         logger.info("Building Bot");
         try {
-            this.jda = JDABuilder.createDefault(configManager.TOKEN)
+            JDABuilder builder = JDABuilder.createDefault(configManager.TOKEN)
                     .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
                     .enableCache(CacheFlag.getPrivileged())
-                    .setAutoReconnect(true)
-                    .build().awaitReady();
+                    .setAutoReconnect(true);
+
+            if (configManager.LAVALINK_ENABLED) builder.setVoiceDispatchInterceptor(new JDAVoiceUpdateListener(lavalinkClient));
+
+            this.jda = builder.build().awaitReady();
         } catch (InvalidTokenException e) {
             logger.error("Invalid Token.", e);
         } catch (InterruptedException e) {
