@@ -52,6 +52,8 @@ public class CommandManager extends ListenerAdapter {
 
         if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_ENABLED) return;
 
+        BotMaster.getLogger().debug("[SlashCommands Loader] Starting");
+
         if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_REGISTER.equalsIgnoreCase("global")) {
             BotMaster.getLogger().info("Loading commands. (Global) (takes 1 hour to update)");
 
@@ -130,9 +132,12 @@ public class CommandManager extends ListenerAdapter {
                 });
             }
         }
+
+        BotMaster.getLogger().debug("[SlashCommands Loader] Finished");
     }
 
     private void addCommandData(Command cmd) {
+        BotMaster.getLogger().debug("[SlashCommands Adder] {}", cmd.getName());
         String[] cmdSplit = cmd.getName().toLowerCase().split(" ");
         CommandDataImpl commandData = new CommandDataImpl(cmdSplit[0], cmdSplit[0]);
         SubcommandGroupData subcommandGroupData = null;
@@ -209,6 +214,7 @@ public class CommandManager extends ListenerAdapter {
                     }
                 }
             }
+            BotMaster.getLogger().debug("[SlashCommands] Executed {}", commandName);
             command.onExecute(e);
         } else {
             BotMaster.getLogger().warn("Command not found: {}", commandName);

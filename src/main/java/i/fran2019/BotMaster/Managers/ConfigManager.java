@@ -13,6 +13,7 @@ public class ConfigManager {
     private Map<String, Object> configMap;
 
     public String TOKEN;
+    public Boolean DEBUG;
     public Boolean MONGODB_ENABLED;
     public String MONGODB_URI;
     public Boolean REDIS_ENABLED;
@@ -33,6 +34,8 @@ public class ConfigManager {
 
     private void setConfigValues(){
         TOKEN = (String) getConfigValue("token");
+
+        DEBUG = (Boolean) getConfigValue("debug");
 
         MONGODB_ENABLED = (Boolean) getConfigValue("mongodb.enabled");
         MONGODB_URI = (String) getConfigValue("mongodb.uri");

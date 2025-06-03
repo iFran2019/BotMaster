@@ -68,6 +68,7 @@ public class PluginManager {
                         Constructor<?> constructor = pluginClass.getDeclaredConstructor(BotMaster.class, String.class, String.class, String.class);
                         Plugin pluginInstance = (Plugin) constructor.newInstance(BotMaster.getBotMaster(), config.get("name"), config.get("description"), config.get("version"));
                         pluginInstance.onEnable();
+                        BotMaster.getLogger().debug("[Plugin Manager] Loaded plugin {}", pluginInstance.getName());
                         plugins.add(pluginInstance);
                     } else {
                         BotMaster.getLogger().warn("Class in plugin file '{}' is not a subclass of Plugin.", pluginFile.getName());
@@ -78,7 +79,6 @@ public class PluginManager {
             }
         } catch (IOException | NullPointerException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             BotMaster.getLogger().warn("Error loading plugin file '{}': {} {}", pluginFile.getName(), e.getClass(), e.getMessage());
-            e.printStackTrace();
         }
     }
 }

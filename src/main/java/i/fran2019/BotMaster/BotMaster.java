@@ -1,5 +1,8 @@
 package i.fran2019.BotMaster;
 
+import ch.qos.logback.classic.Level;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import dev.arbjerg.lavalink.client.Helpers;
@@ -18,6 +21,10 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.UnifiedJedis;
+
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 public class BotMaster {
     @NonNull @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
@@ -43,10 +50,11 @@ public class BotMaster {
 
         logger.info("Starting Bot");
         this.configManager = new ConfigManager();
+        if (configManager.DEBUG) {
+            ch.qos.logback.classic.Logger lg = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(BotMaster.class); lg.setLevel(Level.DEBUG);
+        }
 
-        this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(this.configManager.MONGODB_URI) : null;
-        this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
-        this.lavalinkClient = this.configManager.LAVALINK_ENABLED ? new LavalinkClient(Helpers.getUserIdFromToken(configManager.TOKEN)) : null;
+        loadClients();
 
         botMaster.build();
 
@@ -87,5 +95,49 @@ public class BotMaster {
             logger.error("Interrupted while waiting for JDA to be ready.", e);
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void loadClients() {
+
+        // ═══════════════════════════════════════════════
+        // ║                  MONGODB                    ║
+        // ═══════════════════════════════════════════════
+
+        SSLContext sct;
+        try {
+            sct = SSLContext.getInstance("TLSv1.2");
+            sct.init(null, null, null);
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
+        SSLContext stcF = sct;
+
+        String uri = this.configManager.MONGODB_URI;
+        if (!uri.contains("/")) uri += "/";
+        if (!uri.contains("?")) uri += "?tls=true";
+        else if (!uri.contains("tls=")) uri += "&tls=true";
+
+        this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(
+                MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(uri))
+                        .applyToSslSettings(builder -> {
+                            builder.enabled(true);
+                            builder.context(stcF);
+                            builder.invalidHostNameAllowed(false);
+                        })
+                        .build()
+        ) : null;
+
+        // ═══════════════════════════════════════════════
+        // ║                   REDIS                     ║
+        // ═══════════════════════════════════════════════
+
+        this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
+
+        // ═══════════════════════════════════════════════
+        // ║                  LAVALINK                   ║
+        // ═══════════════════════════════════════════════
+
+        this.lavalinkClient = this.configManager.LAVALINK_ENABLED ? new LavalinkClient(Helpers.getUserIdFromToken(configManager.TOKEN)) : null;
     }
 }

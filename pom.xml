@@ -6,7 +6,7 @@
 
     <groupId>i.fran2019.BotMaster</groupId>
     <artifactId>BotMasterDC</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
 
     <repositories>
         <repository>
