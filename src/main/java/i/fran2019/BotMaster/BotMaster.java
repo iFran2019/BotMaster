@@ -47,12 +47,9 @@ public class BotMaster {
 
     private void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-
         logger.info("Starting Bot");
+
         this.configManager = new ConfigManager();
-        if (configManager.DEBUG) {
-            ch.qos.logback.classic.Logger lg = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(BotMaster.class); lg.setLevel(Level.DEBUG);
-        }
 
         loadClients();
 
@@ -98,6 +95,12 @@ public class BotMaster {
     }
 
     private void loadClients() {
+        // ═══════════════════════════════════════════════
+        // ║                   DEBUG                     ║
+        // ═══════════════════════════════════════════════
+
+        ch.qos.logback.classic.Logger lgr = (ch.qos.logback.classic.Logger) LoggerFactory.getILoggerFactory().getLogger("ROOT");
+        lgr.setLevel(configManager.DEBUG ? Level.DEBUG : Level.INFO);
 
         // ═══════════════════════════════════════════════
         // ║                  MONGODB                    ║
@@ -113,16 +116,21 @@ public class BotMaster {
         SSLContext stcF = sct;
 
         String uri = this.configManager.MONGODB_URI;
-        if (!uri.contains("/")) uri += "/";
-        if (!uri.contains("?")) uri += "?tls=true";
-        else if (!uri.contains("tls=")) uri += "&tls=true";
+        boolean isLocal = uri.contains("localhost") || uri.contains("127.0.0.1");
+        boolean isSrv = uri.startsWith("mongodb+srv://");
+
+        if (!isLocal && !uri.contains("tls=") && !isSrv) {
+            if (!uri.contains("/")) uri += "/";
+            if (!uri.contains("?")) uri += "?tls=true";
+            else uri += "&tls=true";
+        }
 
         this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(
                 MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(uri))
                         .applyToSslSettings(builder -> {
-                            builder.enabled(true);
-                            builder.context(stcF);
+                            builder.enabled(!isLocal && !isSrv);
+                            builder.context(!isLocal && !isSrv ? stcF : null);
                             builder.invalidHostNameAllowed(false);
                         })
                         .build()

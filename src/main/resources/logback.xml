@@ -6,6 +6,7 @@
         </encoder>
     </appender>
 
+
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -17,14 +18,10 @@
         </encoder>
     </appender>
 
-    <logger name="org.mongodb.driver.protocol.command" level="OFF" />
-    <logger name="org.mongodb.driver" level="debug" />
-
-    <logger name="ROOT" level="debug" additivity="false">
-        <appender-ref ref="FILE" />
-    </logger>
+    <logger name="org.mongodb.driver.protocol.command" level="OFF" additivity="false" />
 
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>
