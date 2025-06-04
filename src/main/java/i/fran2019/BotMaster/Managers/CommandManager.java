@@ -50,7 +50,7 @@ public class CommandManager extends ListenerAdapter {
     protected void registerSlashCommands() {
         if (!this.started) this.started = true;
 
-        if (BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_ENABLED) return;
+        if (!BotMaster.getBotMaster().getConfigManager().COMMANDS_SLASH_ENABLED) return;
 
         BotMaster.getLogger().debug("[SlashCommands Loader] Starting");
 
