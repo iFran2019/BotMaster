@@ -22,10 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.UnifiedJedis;
 
-import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-
 public class BotMaster {
     @NonNull @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
     @NonNull @Getter private static BotMaster botMaster;
