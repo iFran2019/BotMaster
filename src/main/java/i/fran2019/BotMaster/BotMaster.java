@@ -106,35 +106,14 @@ public class BotMaster {
         // ║                  MONGODB                    ║
         // ═══════════════════════════════════════════════
 
-        SSLContext sct;
-        try {
-            sct = SSLContext.getInstance("TLSv1.2");
-            sct.init(null, null, null);
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException(e);
-        }
-        SSLContext stcF = sct;
-
-        String uri = this.configManager.MONGODB_URI;
-        boolean isLocal = uri.contains("localhost") || uri.contains("127.0.0.1");
-        boolean isSrv = uri.startsWith("mongodb+srv://");
-
-        if (!isLocal && !uri.contains("tls=") && !isSrv) {
-            if (!uri.contains("/")) uri += "/";
-            if (!uri.contains("?")) uri += "?tls=true";
-            else uri += "&tls=true";
-        }
-
-        this.mongoClient = this.configManager.MONGODB_ENABLED ? MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(uri))
-                        .applyToSslSettings(builder -> {
-                            builder.enabled(!isLocal && !isSrv);
-                            builder.context(!isLocal && !isSrv ? stcF : null);
-                            builder.invalidHostNameAllowed(false);
-                        })
-                        .build()
-        ) : null;
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(this.configManager.MONGODB_URI))
+                .applyToSslSettings(builder -> {
+                    builder.enabled(true);
+                    builder.invalidHostNameAllowed(true);
+                })
+                .build();
+        this.mongoClient = MongoClients.create(settings);
 
         // ═══════════════════════════════════════════════
         // ║                   REDIS                     ║
