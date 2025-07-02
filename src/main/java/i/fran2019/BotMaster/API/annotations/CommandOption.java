@@ -1,5 +1,6 @@
 package i.fran2019.BotMaster.API.annotations;
 
+import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 import java.lang.annotation.Retention;

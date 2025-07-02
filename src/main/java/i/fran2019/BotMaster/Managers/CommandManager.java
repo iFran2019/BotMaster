@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.IntegrationType;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -140,6 +142,8 @@ public class CommandManager extends ListenerAdapter {
         BotMaster.getLogger().debug("[SlashCommands Adder] {}", cmd.getName());
         String[] cmdSplit = cmd.getName().toLowerCase().split(" ");
         CommandDataImpl commandData = new CommandDataImpl(cmdSplit[0], cmdSplit[0]);
+        commandData.setIntegrationTypes(cmd.getIntegrationTypes());
+        commandData.setContexts(cmd.getInteractionContextType());
         SubcommandGroupData subcommandGroupData = null;
         SubcommandData subcommandData = null;
 
