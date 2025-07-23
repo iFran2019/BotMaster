@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/iFran2019/BotMaster)
+
 # BotMaster
 
 BotMaster is open-source software that enables the creation of modular bots easily and efficiently. Additionally, it is designed to avoid excessive resource consumption, ensuring optimal performance.
