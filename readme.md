@@ -1,4 +1,5 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/iFran2019/BotMaster)
+
 [![](https://jitpack.io/v/iFran2019/BotMaster.svg)](https://jitpack.io/#iFran2019/BotMaster)
 
 # BotMaster
