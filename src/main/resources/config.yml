@@ -1,7 +1,7 @@
 token: ""
 debug: false
 privileged-gateway-intents:
-  presence: false # Needed for cache flag
+  presence: false
   server-members: false
   message-content: false
 cache:

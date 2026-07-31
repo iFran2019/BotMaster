@@ -6,7 +6,7 @@
 
     <groupId>i.fran2019.BotMaster</groupId>
     <artifactId>BotMasterDC</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
 
     <repositories>
         <repository>
@@ -119,8 +119,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>24</source>
-                    <target>24</target>
+                    <source>25</source>
+                    <target>25</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
