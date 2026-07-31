@@ -20,7 +20,10 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.RedisClient;
 import redis.clients.jedis.UnifiedJedis;
+
+import java.util.ArrayList;
 
 public class BotMaster {
     @NonNull @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
@@ -73,9 +76,16 @@ public class BotMaster {
 
     private void build() {
         logger.info("Building Bot");
+
+        /* Intents Setting */
+        ArrayList<GatewayIntent> intents = new ArrayList<>();
+        if (configManager.PRESENCE_INTENT_ENABLED) intents.add(GatewayIntent.GUILD_PRESENCES);
+        if (configManager.SERVER_MEMBERS_INTENT_ENABLED) intents.add(GatewayIntent.GUILD_MEMBERS);
+        if (configManager.MESSAGE_CONTENT_INTENT_ENABLED) intents.add(GatewayIntent.MESSAGE_CONTENT);
+
         try {
             JDABuilder builder = JDABuilder.createDefault(configManager.TOKEN)
-                    .enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS))
+                    .enableIntents(intents)
                     .enableCache(CacheFlag.getPrivileged())
                     .setAutoReconnect(true);
 
@@ -115,7 +125,7 @@ public class BotMaster {
         // ║                   REDIS                     ║
         // ═══════════════════════════════════════════════
 
-        this.redisClient = this.configManager.REDIS_ENABLED ? new UnifiedJedis(this.configManager.REDIS_URI) : null;
+        this.redisClient = this.configManager.REDIS_ENABLED ? RedisClient.create(this.configManager.REDIS_URI) : null;
 
         // ═══════════════════════════════════════════════
         // ║                  LAVALINK                   ║

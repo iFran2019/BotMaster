@@ -14,11 +14,19 @@ public class ConfigManager {
 
     public String TOKEN;
     public Boolean DEBUG;
+
+    public Boolean PRESENCE_INTENT_ENABLED;
+    public Boolean SERVER_MEMBERS_INTENT_ENABLED;
+    public Boolean MESSAGE_CONTENT_INTENT_ENABLED;
+
     public Boolean MONGODB_ENABLED;
     public String MONGODB_URI;
+
     public Boolean REDIS_ENABLED;
     public String REDIS_URI;
+
     public Boolean LAVALINK_ENABLED;
+
     public Boolean COMMANDS_SLASH_ENABLED;
     public String COMMANDS_SLASH_REGISTER;
     public List<String> COMMANDS_DISABLED;
@@ -34,8 +42,11 @@ public class ConfigManager {
 
     private void setConfigValues(){
         TOKEN = (String) getConfigValue("token");
-
         DEBUG = (Boolean) getConfigValue("debug");
+
+        PRESENCE_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.presence");
+        SERVER_MEMBERS_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.server-members");
+        MESSAGE_CONTENT_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.message-content");
 
         MONGODB_ENABLED = (Boolean) getConfigValue("mongodb.enabled");
         MONGODB_URI = (String) getConfigValue("mongodb.uri");

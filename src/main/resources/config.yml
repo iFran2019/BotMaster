@@ -1,5 +1,9 @@
 token: ""
 debug: false
+privileged-gateway-intents:
+  presence: false
+  server-members: false
+  message-content: false
 mongodb:
   enabled: false
   uri: ""
