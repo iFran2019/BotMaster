@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.RedisClient;
 import redis.clients.jedis.UnifiedJedis;
 
-import java.util.ArrayList;
+import java.util.EnumSet;
 
 public class BotMaster {
     @NonNull @Getter private static Logger logger = LoggerFactory.getLogger(BotMaster.class);
@@ -77,16 +77,30 @@ public class BotMaster {
     private void build() {
         logger.info("Building Bot");
 
-        /* Intents Setting */
-        ArrayList<GatewayIntent> intents = new ArrayList<>();
+        EnumSet<GatewayIntent> intents = EnumSet.noneOf(GatewayIntent.class);
+        EnumSet<CacheFlag> cache = EnumSet.noneOf(CacheFlag.class);
+
+        /* Privileged Intents Settings */
         if (configManager.PRESENCE_INTENT_ENABLED) intents.add(GatewayIntent.GUILD_PRESENCES);
         if (configManager.SERVER_MEMBERS_INTENT_ENABLED) intents.add(GatewayIntent.GUILD_MEMBERS);
         if (configManager.MESSAGE_CONTENT_INTENT_ENABLED) intents.add(GatewayIntent.MESSAGE_CONTENT);
 
+        /* Cache - Auto Intents Settings */
+        for (String cacheFlagName : configManager.CACHE_ENABLED) {
+            try {
+                CacheFlag cacheFlag = CacheFlag.valueOf(cacheFlagName.toUpperCase());
+                cache.add(cacheFlag);
+                GatewayIntent requiredIntent = cacheFlag.getRequiredIntent();
+                if (requiredIntent != null) intents.add(requiredIntent);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid cache flag: {}", cacheFlagName);
+            }
+        }
+
         try {
             JDABuilder builder = JDABuilder.createDefault(configManager.TOKEN)
                     .enableIntents(intents)
-                    .enableCache(CacheFlag.getPrivileged())
+                    .enableCache(cache)
                     .setAutoReconnect(true);
 
             if (configManager.LAVALINK_ENABLED) builder.setVoiceDispatchInterceptor(new JDAVoiceUpdateListener(lavalinkClient));

@@ -1,9 +1,22 @@
 token: ""
 debug: false
 privileged-gateway-intents:
-  presence: false
+  presence: false # Needed for cache flag
   server-members: false
   message-content: false
+cache:
+  enabled:
+    #- "ACTIVITY" # Need Presence Privilege Intent
+    #- "CLIENT_STATUS" # Need Presence Privilege Intent
+    #- "ONLINE_STATUS" # Need Presence Privilege Intent
+    - "EMOJI"
+    - "FORUM_TAGS"
+    - "MEMBER_OVERRIDES"
+    - "ROLE_TAGS"
+    - "SCHEDULED_EVENTS"
+    - "SOUNDBOARD_SOUNDS"
+    - "STICKER"
+    - "VOICE_STATE"
 mongodb:
   enabled: false
   uri: ""

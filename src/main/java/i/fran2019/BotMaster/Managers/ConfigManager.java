@@ -18,6 +18,7 @@ public class ConfigManager {
     public Boolean PRESENCE_INTENT_ENABLED;
     public Boolean SERVER_MEMBERS_INTENT_ENABLED;
     public Boolean MESSAGE_CONTENT_INTENT_ENABLED;
+    public List<String> CACHE_ENABLED;
 
     public Boolean MONGODB_ENABLED;
     public String MONGODB_URI;
@@ -47,6 +48,7 @@ public class ConfigManager {
         PRESENCE_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.presence");
         SERVER_MEMBERS_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.server-members");
         MESSAGE_CONTENT_INTENT_ENABLED = (Boolean) getConfigValue("privileged-gateway-intents.message-content");
+        CACHE_ENABLED = (List<String>) getConfigValue("cache.enabled");
 
         MONGODB_ENABLED = (Boolean) getConfigValue("mongodb.enabled");
         MONGODB_URI = (String) getConfigValue("mongodb.uri");
