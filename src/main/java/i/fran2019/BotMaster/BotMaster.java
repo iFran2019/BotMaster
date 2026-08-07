@@ -128,10 +128,6 @@ public class BotMaster {
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(this.configManager.MONGODB_URI))
-                .applyToSslSettings(builder -> {
-                    builder.enabled(true);
-                    builder.invalidHostNameAllowed(true);
-                })
                 .build();
         this.mongoClient = MongoClients.create(settings);
 
